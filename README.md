@@ -1,6 +1,14 @@
 # noteapp
 
 A new Flutter project.
+بدايه قويه كمبتدء تقدر تستغل الكود لو لسه بتتعلم فيه تفاصيل كتير جدا :
+bloc
+sqflite 
+color picker 
+date picker 
+time picker
+dealing with responsive ui 
+dealing with MVVM Model .
 
 ## Getting Started
 
