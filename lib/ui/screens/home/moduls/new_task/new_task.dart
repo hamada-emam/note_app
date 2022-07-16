@@ -1,16 +1,11 @@
-import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:noteapp/cubit/task_cubit.dart';
-import 'package:noteapp/cubit/task_stats.dart';
-
-import '../../cubit/task_cubit.dart';
-import '../../shard_alongapp/components_reused/constants.dart';
+import 'package:noteapp/cubit/cubit.dart';
+import 'package:noteapp/cubit/stats.dart';
+import 'package:noteapp/ui/components/managers/conestants_manager.dart';
 
 class NewTask extends StatelessWidget {
-  NewTask({Key? key}) : super(key: key);
+  const NewTask({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

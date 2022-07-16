@@ -1,16 +1,44 @@
-# noteapp
+# ToDo App -->by using bloc state managment.
 
-A new Flutter project.
+### App Screens
 
-## Getting Started
+>home page(initialpage)
 
-This project is a starting point for a Flutter application.
+    * new tasks 
+    * done tasks
+    * archived tasks
+    * settings button
+        * theme
+        * clear 
+           * all
+           * new
+           * done
+    * edit
+    * add to archive 
+    * add to done 
+    * make as new    
+    * page name
+    * all tasks page
+    * scrollfloating action button to add new tasks
+    * details page when clicking on any task
 
-A few resources to get you started if this is your first Flutter project:
+## All You will learn here is
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+<details>
+<sumary></sumary>
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+* svg images
+* mvvm with bloc
+* [draggable_fab](https://pub.dev/packages/draggable_fab)
+* [flutter_speed_dial](https://pub.dev/packages/flutter_speed_dial)
+* [sqflite](https://pub.dev/packages/sqflite)
+* [google_fonts](https://pub.dev/packages/google_fonts)
+* [intl](https://pub.dev/packages/intl)
+* date_picker_timeline
+* conditional_builder_null_safety
+* flutter_bloc
+* bloc
+* flutter_slidable
+* flutter_colorpicker
+
+</details>

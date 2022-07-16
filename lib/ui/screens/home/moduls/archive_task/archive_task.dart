@@ -3,14 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:noteapp/cubit/task_cubit.dart';
-import 'package:noteapp/cubit/task_stats.dart';
+import 'package:noteapp/cubit/cubit.dart';
+import 'package:noteapp/cubit/stats.dart';
 
-import '../../cubit/task_cubit.dart';
-import '../../ui/detaials_page.dart';
 
-class DoneTask extends StatelessWidget {
-  const DoneTask({Key? key}) : super(key: key);
+
+class ArchiveTask extends StatefulWidget {
+  const ArchiveTask({Key? key}) : super(key: key);
+
+  @override
+  State<ArchiveTask> createState() => _ArchiveTaskState();
+}
+
+class _ArchiveTaskState extends State<ArchiveTask> {
+  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
@@ -19,27 +25,29 @@ class DoneTask extends StatelessWidget {
       builder: (BuildContext context, AppState state) {
         AppCubit cubit = AppCubit.get(context);
         return ConditionalBuilder(
-          condition: cubit.doneTaskList.isNotEmpty,
+          condition: cubit.archiveTaskList.isNotEmpty,
           builder: (context) => SizedBox(
             height: MediaQuery.of(context).size.height * .8,
             child: ListView.builder(
                 itemBuilder: (context, index) {
                   final Map<String, dynamic> item =
-                      AppCubit.get(context).doneTaskList[index];
+                      cubit.archiveTaskList[index];
+
                   return GestureDetector(
                     onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => Details(
-                                item: item,
-                              )));
+                      // Navigator.of(context).push(MaterialPageRoute(
+                      //     builder: (context) => Details(
+                      //           item: item,
+                      //         )));
                     },
                     child: Slidable(
                       // Specify a key if the Slidable is dismissible.
-                      key: const ValueKey(2),
+                      key: const ValueKey(1),
+
                       // The start action pane is the one at the left or the top side.
                       startActionPane: ActionPane(
                         // A motion is a widget used to control how the pane animates.
-                        motion: const BehindMotion(),
+                        motion: const StretchMotion(),
 
                         // A pane can dismiss the Slidable.
                         dismissible: DismissiblePane(onDismissed: () {
@@ -61,7 +69,9 @@ class DoneTask extends StatelessWidget {
                             },
                           ),
                           SlidableAction(
-                            onPressed: (BuildContext context) {},
+                            onPressed: (context) async {
+                              // Navigator.push(context, MaterialPageRoute(builder: (context)=>Details(item: item,)));
+                            },
                             backgroundColor: Colors.transparent,
                             foregroundColor: const Color(0xFF21B7CA),
                             icon: Icons.share,
@@ -69,34 +79,39 @@ class DoneTask extends StatelessWidget {
                           ),
                         ],
                       ),
+
                       // The end action pane is the one at the right or the bottom side.
                       endActionPane: ActionPane(
-                        motion: const ScrollMotion(),
+                        motion: const DrawerMotion(),
                         children: [
                           SlidableAction(
                             // An action can be bigger than the others.
                             onPressed: (BuildContext context) {
-                              AppCubit.get(context)
-                                  .update(id: item['id'], x: 'archive');
+                              cubit.update(
+                                  id: item['id'],
+                                  x: item['status'] == 'archive'
+                                      ? 'new'
+                                      : 'archive');
                             },
                             backgroundColor: Colors.transparent,
                             foregroundColor: const Color(0xFF7BC043),
                             icon: Icons.archive,
-                            label: 'Archive',
+                            label:
+                                item['status'] == 'archive' ? 'New' : 'Archive',
                           ),
                           SlidableAction(
                             onPressed: (BuildContext context) {
-                              AppCubit.get(context).update(
-                                  id: item['id'],
-                                  x: item['status'] == 'done' ? 'new' : 'done');
+                              AppCubit.get(context)
+                                  .update(id: item['id'], x: 'done');
                             },
                             backgroundColor: Colors.transparent,
                             foregroundColor: const Color(0xFF0392CF),
                             icon: Icons.save,
-                            label: item['status'] == 'done' ? 'New' : 'Done',
+                            label: 'Done',
                           ),
                         ],
                       ),
+
                       // The child of the Slidable is what the user sees when the
                       // component is not dragged.
                       child: Card(
@@ -117,15 +132,15 @@ class DoneTask extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                      'Title : \n${AppCubit.get(context).doneTaskList[index]['title']}',
+                                      'Title : \n${AppCubit.get(context).archiveTaskList[index]['title']}',
                                       style: GoogleFonts.abel(
                                           fontSize: 25,
                                           color: Colors.teal.shade900,
                                           fontWeight: FontWeight.bold)),
                                   const SizedBox(height: 20),
                                   Text(
-                                    'Date : ${AppCubit.get(context).doneTaskList[index]['date']}  '
-                                    '  Time :${AppCubit.get(context).doneTaskList[index]['startTime']}',
+                                    'Date : ${AppCubit.get(context).archiveTaskList[index]['date']}  '
+                                    '  Time :${AppCubit.get(context).archiveTaskList[index]['startTime']}',
                                     style:
                                         TextStyle(color: Colors.teal.shade300),
                                   ),
@@ -138,7 +153,7 @@ class DoneTask extends StatelessWidget {
                     ),
                   );
                 },
-                itemCount: AppCubit.get(context).doneTaskList.length),
+                itemCount: AppCubit.get(context).archiveTaskList.length),
           ),
           fallback: (context) => SizedBox(
             height: MediaQuery.of(context).size.height * .7,
@@ -158,7 +173,7 @@ class DoneTask extends StatelessWidget {
                         textStyle: const TextStyle(
                             fontSize: 25, color: Colors.blueGrey)),
                   ),
-                  title: Text('No Done Tasks Yet!',
+                  title: Text('No Archived Tasks Yet!',
                       style: GoogleFonts.syneMono(
                           textStyle: const TextStyle(
                               fontSize: 25, color: Colors.blueGrey))),

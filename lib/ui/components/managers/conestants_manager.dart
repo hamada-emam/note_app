@@ -5,189 +5,177 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
-import '../../cubit/task_cubit.dart';
-import '../../cubit/task_stats.dart';
-import '../../ui/detaials_page.dart';
+import '../../../cubit/cubit.dart';
+import '../../../cubit/stats.dart';
+
+
+
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
-const String columnId = 'id';
-const String columnTitle = 'title';
-const String columnNote = 'note';
-const String columnDate = 'date';
-const String columnStartTime = 'startTime';
-const String columnEndTime = 'endTime';
-const String columnColor = 'color';
-const String columnState = 'state';
-const String columnStatus = 'status';
-const String columnRemind = 'remind';
-const String columnRepeat = 'repeat';
-const String textType = 'TEXT NOT NULL';
-const String integerType = 'INTEGER NOT NULL';
-const String idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
-
+class DBNamesConstants {
+ static const String columnTitle = 'title';
+ static const String columnNote = 'note';
+ static const String columnDate = 'date';
+ static const String columnStartTime = 'startTime';
+ static const String columnEndTime = 'endTime';
+ static const String columnColor = 'color';
+ static const String columnState = 'state';
+ static const String columnStatus = 'status';
+ static const String columnRemind = 'remind';
+ static const String columnRepeat = 'repeat';
+ static const String textType = 'TEXT NOT NULL';
+ static const String integerType = 'INTEGER NOT NULL';
+ static const String idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
+ static const String columnId = 'id';
+}
 
 ConditionalBuilder buildConditionalBuilder(cubitList, cubit) {
   return ConditionalBuilder(
     condition: cubitList.isNotEmpty,
-    builder: (context) =>
-        SizedBox(
-          height: MediaQuery
-              .of(context)
-              .size
-              .height * .8,
-          child: ListView.builder(
-              itemBuilder: (context, index) {
-                final Map<String, dynamic> item = cubitList[index];
+    builder: (context) => SizedBox(
+      height: MediaQuery.of(context).size.height * .8,
+      child: ListView.builder(
+          itemBuilder: (context, index) {
+            final Map<String, dynamic> item = cubitList[index];
 
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) =>
-                            Details(
-                              item: item,
-                            )));
-                  },
-                  child: Slidable(
-                    // Specify a key if the Slidable is dismissible.
-                    key: const ValueKey(0),
+            return GestureDetector(
+              onTap: () {
+                // Navigator.of(context).push(MaterialPageRoute(
+                //     builder: (context) => Details(
+                //           item: item,
+                //         )));
+              },
+              child: Slidable(
+                // Specify a key if the Slidable is dismissible.
+                key: const ValueKey(0),
 
-                    // The start action pane is the one at the left or the top side.
-                    startActionPane: ActionPane(
-                      // A motion is a widget used to control how the pane animates.
-                      motion: const ScrollMotion(),
+                // The start action pane is the one at the left or the top side.
+                startActionPane: ActionPane(
+                  // A motion is a widget used to control how the pane animates.
+                  motion: const ScrollMotion(),
 
-                      // A pane can dismiss the Slidable.
-                      dismissible: DismissiblePane(onDismissed: () {
+                  // A pane can dismiss the Slidable.
+                  dismissible: DismissiblePane(onDismissed: () {
+                    cubit.tasksDelete(item['id']);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('${item['title']} dismissed')));
+                  }),
+
+                  // All actions are defined in the children parameter.
+                  children: [
+                    // A SlidableAction can have an icon and/or a label.
+                    SlidableAction(
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: const Color(0xFFFE4A49),
+                      icon: Icons.delete,
+                      label: 'Delete',
+                      onPressed: (BuildContext context) {
                         cubit.tasksDelete(item['id']);
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text('${item['title']} dismissed')));
-                      }),
-
-                      // All actions are defined in the children parameter.
-                      children: [
-                        // A SlidableAction can have an icon and/or a label.
-                        SlidableAction(
-                          backgroundColor: Colors.transparent,
-                          foregroundColor: const Color(0xFFFE4A49),
-                          icon: Icons.delete,
-                          label: 'Delete',
-                          onPressed: (BuildContext context) {
-                            cubit.tasksDelete(item['id']);
-                          },
-                        ),
-                        SlidableAction(
-                          onPressed: (BuildContext context) {},
-                          backgroundColor: Colors.transparent,
-                          foregroundColor: const Color(0xFF21B7CA),
-                          icon: Icons.share,
-                          label: 'Edit',
-                        ),
-                      ],
+                      },
                     ),
-
-                    // The end action pane is the one at the right or the bottom side.
-                    endActionPane: ActionPane(
-                      motion: const ScrollMotion(),
-                      children: [
-                        SlidableAction(
-                          // An action can be bigger than the others.
-                          onPressed: (BuildContext context) {
-                            cubit
-                                .update(id: item['id'], x: 'archive');
-                          },
-                          backgroundColor: Colors.transparent,
-                          foregroundColor: const Color(0xFF7BC043),
-                          icon: Icons.archive,
-                          label: 'Archive',
-                        ),
-                        SlidableAction(
-                          onPressed: (BuildContext context) {
-                            cubit
-                                .update(id: item['id'], x: 'done');
-                          },
-                          backgroundColor: Colors.transparent,
-                          foregroundColor: Color(0xFF0392CF),
-                          icon: Icons.save,
-                          label: 'Done',
-                        ),
-                      ],
+                    SlidableAction(
+                      onPressed: (BuildContext context) {},
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: const Color(0xFF21B7CA),
+                      icon: Icons.share,
+                      label: 'Edit',
                     ),
+                  ],
+                ),
 
-                    // The child of the Slidable is what the user sees when the
-                    // component is not dragged.
-                    child: Card(
-                      elevation: 20,
-                      color: Colors.blueGrey.shade900.withOpacity(.5),
-                      child: Container(
-                        padding: const EdgeInsets.all(15),
-                        child: Row(
+                // The end action pane is the one at the right or the bottom side.
+                endActionPane: ActionPane(
+                  motion: const ScrollMotion(),
+                  children: [
+                    SlidableAction(
+                      // An action can be bigger than the others.
+                      onPressed: (BuildContext context) {
+                        cubit.update(id: item['id'], x: 'archive');
+                      },
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: const Color(0xFF7BC043),
+                      icon: Icons.archive,
+                      label: 'Archive',
+                    ),
+                    SlidableAction(
+                      onPressed: (BuildContext context) {
+                        cubit.update(id: item['id'], x: 'done');
+                      },
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: const Color(0xFF0392CF),
+                      icon: Icons.save,
+                      label: 'Done',
+                    ),
+                  ],
+                ),
+
+                // The child of the Slidable is what the user sees when the
+                // component is not dragged.
+                child: Card(
+                  elevation: 20,
+                  color: Colors.blueGrey.shade900.withOpacity(.5),
+                  child: Container(
+                    padding: const EdgeInsets.all(15),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: Colors.teal.shade900.withOpacity(.5),
+                          child: Text('${index + 1}'),
+                          radius: 40,
+                        ),
+                        const SizedBox(width: 15),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            CircleAvatar(
-                              backgroundColor:
-                              Colors.teal.shade900.withOpacity(.5),
-                              child: Text('${index + 1}'),
-                              radius: 40,
-                            ),
-                            const SizedBox(width: 15),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                    'Title : \n${cubit
-                                        .newTaskList[index]['title']}',
-                                    style: GoogleFonts.abel(
-                                        fontSize: 25,
-                                        color: Colors.teal.shade900,
-                                        fontWeight: FontWeight.bold)),
-                                const SizedBox(height: 20),
-                                Text(
-                                  'Date : ${cubit.newTaskList[index]['date']}  '
-                                      '  Time :${cubit
-                                      .newTaskList[index]['startTime']}',
-                                  style:
-                                  TextStyle(color: Colors.teal.shade300),
-                                ),
-                              ],
+                            Text(
+                                'Title : \n${cubit.newTaskList[index]['title']}',
+                                style: GoogleFonts.abel(
+                                    fontSize: 25,
+                                    color: Colors.teal.shade900,
+                                    fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 20),
+                            Text(
+                              'Date : ${cubit.newTaskList[index]['date']}  '
+                              '  Time :${cubit.newTaskList[index]['startTime']}',
+                              style: TextStyle(color: Colors.teal.shade300),
                             ),
                           ],
                         ),
-                      ),
+                      ],
                     ),
                   ),
-                );
-              },
-              itemCount: cubit.newTaskList.length),
-        ),
-    fallback: (context) =>
-        SizedBox(
-          height: MediaQuery
-              .of(context)
-              .size
-              .height * .7,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              ListTile(
-                trailing: Icon(
-                  Icons.emoji_people,
-                  size: 150,
-                  color: Colors.blueGrey.shade400,
                 ),
-                subtitle: Text(
-                  'Go Add One',
-                  style: GoogleFonts.syneMono(
-                      textStyle: const TextStyle(
-                          fontSize: 25, color: Colors.blueGrey)),
-                ),
-                title: Text('No New Tasks Yet!',
-                    style: GoogleFonts.syneMono(
-                        textStyle: const TextStyle(
-                            fontSize: 25, color: Colors.blueGrey))),
               ),
-            ],
+            );
+          },
+          itemCount: cubit.newTaskList.length),
+    ),
+    fallback: (context) => SizedBox(
+      height: MediaQuery.of(context).size.height * .7,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          ListTile(
+            trailing: Icon(
+              Icons.emoji_people,
+              size: 150,
+              color: Colors.blueGrey.shade400,
+            ),
+            subtitle: Text(
+              'Go Add One',
+              style: GoogleFonts.syneMono(
+                  textStyle:
+                      const TextStyle(fontSize: 25, color: Colors.blueGrey)),
+            ),
+            title: Text('No New Tasks Yet!',
+                style: GoogleFonts.syneMono(
+                    textStyle:
+                        const TextStyle(fontSize: 25, color: Colors.blueGrey))),
           ),
-        ),
+        ],
+      ),
+    ),
   );
 }
 
@@ -205,10 +193,7 @@ BlocConsumer<AppCubit, AppState> buildBottomSheet(context, onPressed) {
           ),
           color: Colors.black.withOpacity(.6),
         ),
-        height: MediaQuery
-            .of(context)
-            .size
-            .height * .53,
+        height: MediaQuery.of(context).size.height * .53,
         width: double.infinity,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -243,8 +228,8 @@ BlocConsumer<AppCubit, AppState> buildBottomSheet(context, onPressed) {
                   child: ElevatedButton(
                     onPressed: onPressed,
                     style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(
-                            Colors.blueGrey.shade900),
+                        backgroundColor:
+                            MaterialStateProperty.all(Colors.blueGrey.shade900),
                         foregroundColor: MaterialStateProperty.all(
                             Colors.blueGrey.shade300)),
                     child: const Text('Save'),
@@ -315,9 +300,7 @@ BlocConsumer<AppCubit, AppState> buildBottomSheet(context, onPressed) {
                           size: 30,
                         ),
                         lable: DateFormat.yMd()
-                            .format(AppCubit
-                            .get(context)
-                            .selectedDateTime),
+                            .format(AppCubit.get(context).selectedDateTime),
                       ),
                     ],
                   ),
@@ -338,9 +321,7 @@ BlocConsumer<AppCubit, AppState> buildBottomSheet(context, onPressed) {
                                   color: Colors.blueGrey,
                                   size: 30,
                                 ),
-                                lable: AppCubit
-                                    .get(context)
-                                    .startTime,
+                                lable: AppCubit.get(context).startTime,
                                 onTap: () async {
                                   await AppCubit.get(context).getTimeFromUser(
                                       isStartTime: true, context: context);
@@ -363,9 +344,7 @@ BlocConsumer<AppCubit, AppState> buildBottomSheet(context, onPressed) {
                                   color: Colors.blueGrey,
                                   size: 30,
                                 ),
-                                lable: AppCubit
-                                    .get(context)
-                                    .endTime,
+                                lable: AppCubit.get(context).endTime,
                                 onTap: () async {
                                   await AppCubit.get(context).getTimeFromUser(
                                       isStartTime: false, context: context);
@@ -381,18 +360,17 @@ BlocConsumer<AppCubit, AppState> buildBottomSheet(context, onPressed) {
                           child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Reminder',
-                                  style: TextStyle(color: Colors.blueGrey),
-                                ),
-                                buildTextFormField(
-                                  enabled: false,
-                                  lable: AppCubit
-                                      .get(context)
-                                      .selectedRemind
-                                      .toString(),
-                                ),
-                              ])),
+                            const Text(
+                              'Reminder',
+                              style: TextStyle(color: Colors.blueGrey),
+                            ),
+                            buildTextFormField(
+                              enabled: false,
+                              lable: AppCubit.get(context)
+                                  .selectedRemind
+                                  .toString(),
+                            ),
+                          ])),
                       Expanded(
                         child: DropdownButton(
                           borderRadius: BorderRadius.circular(15),
@@ -409,18 +387,16 @@ BlocConsumer<AppCubit, AppState> buildBottomSheet(context, onPressed) {
                             height: 0,
                           ),
                           elevation: 4,
-                          items: AppCubit
-                              .get(context)
+                          items: AppCubit.get(context)
                               .remindList
                               .map(
-                                (valueReminded) =>
-                                DropdownMenuItem(
+                                (valueReminded) => DropdownMenuItem(
                                   value: valueReminded,
                                   child: Text(
                                     "$valueReminded",
                                   ),
                                 ),
-                          )
+                              )
                               .toList(),
                         ),
                       ),
@@ -428,18 +404,17 @@ BlocConsumer<AppCubit, AppState> buildBottomSheet(context, onPressed) {
                           child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Repeat',
-                                  style: TextStyle(color: Colors.blueGrey),
-                                ),
-                                buildTextFormField(
-                                  enabled: false,
-                                  lable: AppCubit
-                                      .get(context)
-                                      .selectedRepeat
-                                      .toString(),
-                                ),
-                              ])),
+                            const Text(
+                              'Repeat',
+                              style: TextStyle(color: Colors.blueGrey),
+                            ),
+                            buildTextFormField(
+                              enabled: false,
+                              lable: AppCubit.get(context)
+                                  .selectedRepeat
+                                  .toString(),
+                            ),
+                          ])),
                       Expanded(
                         child: DropdownButton(
                           borderRadius: BorderRadius.circular(15),
@@ -456,16 +431,14 @@ BlocConsumer<AppCubit, AppState> buildBottomSheet(context, onPressed) {
                             height: 0,
                           ),
                           elevation: 4,
-                          items: AppCubit
-                              .get(context)
+                          items: AppCubit.get(context)
                               .repeatList
                               .map(
-                                (valueReminded) =>
-                                DropdownMenuItem(
+                                (valueReminded) => DropdownMenuItem(
                                   value: valueReminded,
                                   child: Text(valueReminded),
                                 ),
-                          )
+                              )
                               .toList(),
                         ),
                       ),
@@ -480,15 +453,12 @@ BlocConsumer<AppCubit, AppState> buildBottomSheet(context, onPressed) {
                       ),
                       lable: 'Color',
                       onTap: () async {
-
                         // raise the [showDialog] widget
 
-
-
-                        Color pickerColor = Color(0xff443a49);
-                        Color currentColor = Color(0xff443a49);                        showDialog(
+                        Color currentColor = const Color(0xff443a49);
+                        showDialog(
                           context: context,
-                          builder:(context)=> AlertDialog(
+                          builder: (context) => AlertDialog(
                             title: const Text('Pick a color!'),
                             content: SingleChildScrollView(
                               // child: ColorPicker(
@@ -537,6 +507,7 @@ BlocConsumer<AppCubit, AppState> buildBottomSheet(context, onPressed) {
     },
   );
 }
+
 const List<Color> _defaultColors = [
   Colors.red,
   Colors.pink,
@@ -593,9 +564,9 @@ GestureDetector buildTextFormField(
           suffixIcon: icon,
           focusedBorder: UnderlineInputBorder(
               borderSide: BorderSide(
-                color: Colors.blueGrey.shade400,
-                width: 1.5,
-              )),
+            color: Colors.blueGrey.shade400,
+            width: 1.5,
+          )),
           label: Text(lable),
           labelStyle: const TextStyle(color: Colors.grey, fontSize: 18),
         ),

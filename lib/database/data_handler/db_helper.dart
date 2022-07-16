@@ -1,28 +1,31 @@
 import 'package:flutter/cupertino.dart';
+import 'package:noteapp/ui/components/managers/conestants_manager.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
-import '../../models/task.dart';
-import '../../shard_alongapp/components_reused/constants.dart';
+import '../models/task.dart';
 
 class DBHelper {
   DBHelper();
-
+  // create instance from DB
   static Database? _db;
+  // set the version of DB
   static const int _version = 1;
+  // set table name of DB
   static const String _tableName = 'tasks';
-
+  // singletone for create one instance of DB
   static Future<Database> get database async {
     if (_db != null) {
       return _db!;
     } else {
-      print('database  created');
+      debugPrint('database  created');
       return initDb();
     }
   }
 
+  // holding DB path
   static String? _dbPath;
-
+  // get DB filepath
   static Future<String> get databaseFilepath async {
     if (_dbPath != null) {
       return _dbPath!;
@@ -31,29 +34,31 @@ class DBHelper {
     }
   }
 
-//that's initialize data base
+  //that's initialize data base
   static Future<Database> initDb() async {
     //if it already here just tell me
     // Get a location using getDatabasesPath
     String path = join(await databaseFilepath, 'task.db');
-    debugPrint("path $path");
+    debugPrint("pathcreated => $path");
+    // set an instance of DB
     Database ourDb = await openDatabase(
       path,
       version: _version,
+      // starting create DB
       onCreate: (Database db, int version) async {
-        // When creating the db, create the table columns
+        // When creating the DB, create the table columns
         await db.execute('''
         CREATE TABLE $_tableName (
-        $columnId $idType,
-        $columnTitle $textType,
-        $columnNote $textType, 
-        $columnDate $textType,
-        $columnStartTime $textType,
-        $columnEndTime $textType, 
-        $columnColor $integerType,
-        $columnStatus $textType,
-        $columnRemind $integerType,
-        $columnRepeat $textType)
+        $DBNamesConstants.columnId $DBNamesConstants.idType,
+        $DBNamesConstants.columnTitle $DBNamesConstants.textType,
+        $DBNamesConstants.columnNote $DBNamesConstants.textType, 
+        $DBNamesConstants.columnDate $DBNamesConstants.textType,
+        $DBNamesConstants.columnStartTime $DBNamesConstants.textType,
+        $DBNamesConstants.columnEndTime $DBNamesConstants.textType, 
+        $DBNamesConstants.columnColor $DBNamesConstants.integerType,
+        $DBNamesConstants.columnStatus $DBNamesConstants.textType,
+        $DBNamesConstants.columnRemind $DBNamesConstants.integerType,
+        $DBNamesConstants.columnRepeat $DBNamesConstants.textType)
          ''');
         debugPrint("database created $_db => $_tableName");
       },

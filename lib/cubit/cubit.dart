@@ -1,20 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:intl/intl.dart';
-import 'package:noteapp/cubit/task_stats.dart';
+import 'package:noteapp/cubit/stats.dart';
 
-import '../database/local/db_helper.dart';
-import '../models/task.dart';
-import '../moduls/archive_task/archive_task.dart';
-import '../moduls/done_task/done_task.dart';
-import '../moduls/new_task/new_task.dart';
+import '../database/data_handler/db_helper.dart';
+import '../ui/screens/home/moduls/archive_task/archive_task.dart';
+import '../ui/screens/home/moduls/done_task/done_task.dart';
+import '../ui/screens/home/moduls/new_task/new_task.dart';
 
 class AppCubit extends Cubit<AppState> {
   AppCubit() : super(AppInitialState());
 
   static AppCubit get(context) => BlocProvider.of(context);
 
-  List<Widget> screens = [NewTask(), const DoneTask(), ArchiveTask()];
+ static ValueNotifier<bool> isDialOpen = ValueNotifier<bool>(false);
+  static bool customDialRoot = false;
+  static bool visible = true;
+  static bool switchLabelPosition = true;
+  static bool extend = false;
+  static bool rmicons = false;
+  static bool closeManually = false;
+  static bool useRAnimation = true;
+  static SpeedDialDirection speedDialDirection = SpeedDialDirection.down;
+  static Size buttonSize = const Size(56.0, 56.0);
+  static Size childrenButtonSize = const Size(56.0, 56.0);
+  static FloatingActionButtonLocation selectedfABLocation = FloatingActionButtonLocation.startFloat;
+  static bool renderOverlay = false;
+
+  List<Widget> screens = [
+    const NewTask(),
+    const DoneTask(),
+    const ArchiveTask(),
+  ];
   List appBar = ['NewTask', 'DoneTask', 'ArchiveTask'];
   int currentIndex = 0;
 
@@ -56,7 +74,7 @@ class AppCubit extends Cubit<AppState> {
           emit(EndTimeState());
         }
       } else {
-        print(
+        debugPrint(
             "it's null or something wrong! the user go without selecting time ");
       }
     });
@@ -115,9 +133,9 @@ class AppCubit extends Cubit<AppState> {
           archiveTaskList.add(element);
         }
       }
-      print('done $doneTaskList');
-      print('archive $archiveTaskList');
-      print('new $newTaskList');
+      debugPrint('done $doneTaskList');
+      debugPrint('archive $archiveTaskList');
+      debugPrint('new $newTaskList');
 
       emit(GetTasksState());
     });
@@ -131,9 +149,7 @@ class AppCubit extends Cubit<AppState> {
   }
 
   edit({required int id, required String x}) async {
-    await DBHelper
-        .updateNote(id: id,x: x)
-        .then((value) {
+    await DBHelper.updateNote(id: id, x: x).then((value) {
       tasksGet();
       emit(AppDatabaseUpdateState());
       emit(ArchiveTasksState());
